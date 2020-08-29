@@ -92,7 +92,7 @@ class PubSubRoom extends EventEmitter {
 
     const msg = {
       to: peer,
-      from: this._libp2p.peerInfo.id.toB58String(),
+      from: this._libp2p.peerId.toB58String(),
       data: Buffer.from(message).toString('hex'),
       seqno: seqno.toString('hex'),
       topicIDs: [this._topic],
@@ -114,7 +114,10 @@ class PubSubRoom extends EventEmitter {
     const differences = diff(this._peers, newPeers)
 
     differences.added.forEach((peer) => this.emit('peer joined', peer))
-    differences.removed.forEach((peer) => this.emit('peer left', peer))
+    differences.removed.forEach((peer) => {
+      delete this._connections[peer]
+      this.emit('peer left', peer)
+    })
 
     return differences.added.length > 0 || differences.removed.length > 0
   }
@@ -124,7 +127,7 @@ class PubSubRoom extends EventEmitter {
   }
 
   _handleDirectMessage (message) {
-    if (message.to.toString() === this._libp2p.peerInfo.id.toB58String()) {
+    if (message.to.toString() === this._libp2p.peerId.toB58String()) {
       const m = Object.assign({}, message)
       delete m.to
       this.emit('message', m)
