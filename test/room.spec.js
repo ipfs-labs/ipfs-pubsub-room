@@ -18,12 +18,12 @@ describe('room', function () {
 
   before(async () => {
     node1 = await createLibp2p()
-    id1 = node1.peerInfo.id.toB58String()
+    id1 = node1.peerId.toB58String()
   })
 
   before(async () => {
     node2 = await createLibp2p(node1)
-    id2 = node2.peerInfo.id.toB58String()
+    id2 = node2.peerId.toB58String()
   })
 
   const rooms = []
@@ -89,7 +89,7 @@ describe('room', function () {
           }
           gotMessage = true
           expect(message.from).to.deep.equal(id1)
-          expect(message.seqno.toString()).to.equal(Buffer.from([0]).toString())
+          expect(message.seqno).to.equal(0)
           expect(message.topicIDs).to.deep.equal([topic])
           expect(message.topicCIDs).to.deep.equal([topic])
           expect(message.data.toString()).to.equal('message 2')
